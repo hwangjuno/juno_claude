@@ -1,7 +1,5 @@
-const CACHE = 'clear-v1';
-const ASSETS = [
-  './',
-  './index.html',
+const CACHE = 'clear-v3';
+const STATIC = [
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
@@ -9,7 +7,7 @@ const ASSETS = [
 
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting())
+    caches.open(CACHE).then(c => c.addAll(STATIC)).then(() => self.skipWaiting())
   );
 });
 
@@ -22,6 +20,23 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
+  const url = new URL(e.request.url);
+
+  // Always fetch HTML fresh from network, fall back to cache if offline
+  if (url.pathname.endsWith('/') || url.pathname.endsWith('.html')) {
+    e.respondWith(
+      fetch(e.request)
+        .then(res => {
+          const clone = res.clone();
+          caches.open(CACHE).then(c => c.put(e.request, clone));
+          return res;
+        })
+        .catch(() => caches.match(e.request))
+    );
+    return;
+  }
+
+  // Static assets: cache first
   e.respondWith(
     caches.match(e.request).then(cached => cached || fetch(e.request))
   );

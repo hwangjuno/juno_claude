@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clear — Break Free from Alcohol</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#6c8eff" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Clear" />
+  <style>
+    :root {
+      --bg: #0f1117;
+      --card: #1a1d27;
+      --border: #2a2d3a;
+      --accent: #6c8eff;
+      --accent2: #a78bfa;
+      --green: #4ade80;
+      --red: #f87171;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px 48px;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    header p {
+      color: var(--muted);
+      margin-top: 6px;
+      font-size: 0.95rem;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Sobriety counter */
+    .counter-card {
+      background: linear-gradient(135deg, #1e2235, #252840);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      text-align: center;
+    }
+    .counter-card .label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .counter-card .days {
+      font-size: 4rem;
+      font-weight: 800;
+      color: var(--green);
+      line-height: 1;
+    }
+    .counter-card .days-label {
+      font-size: 1rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    .counter-card .detail {
+      margin-top: 12px;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .counter-card .since-input-row {
+      margin-top: 16px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .counter-card input[type="datetime-local"] {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      padding: 8px 12px;
+      font-size: 0.85rem;
+    }
+    .counter-card input[type="datetime-local"]:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .btn-set {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 8px 16px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .btn-set:hover { opacity: 0.85; }
+
+    /* Urge button */
+    .urge-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      text-align: center;
+    }
+    .urge-card p {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 16px;
+    }
+    .btn-urge {
+      width: 100%;
+      background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s, opacity 0.15s;
+    }
+    .btn-urge:hover { opacity: 0.9; transform: scale(0.99); }
+    .btn-urge:active { transform: scale(0.97); }
+
+    /* Suggestions panel */
+    .suggestions-card {
+      background: var(--card);
+      border: 1px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      display: none;
+    }
+    .suggestions-card.visible { display: block; }
+    .suggestions-card h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 14px;
+      color: var(--accent2);
+    }
+    .suggestion-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 12px;
+      background: rgba(108, 142, 255, 0.07);
+      border-radius: 10px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .suggestion-item:last-child { margin-bottom: 0; }
+    .suggestion-item:hover { background: rgba(108, 142, 255, 0.15); }
+    .suggestion-item .icon { font-size: 1.4rem; line-height: 1; }
+    .suggestion-item .text .title {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .suggestion-item .text .desc {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .btn-shuffle {
+      width: 100%;
+      margin-top: 12px;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 10px;
+      padding: 8px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-shuffle:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* Urge log */
+    .log-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+    }
+    .log-card h3 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .log-card .clear-btn {
+      font-size: 0.75rem;
+      color: var(--red);
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-transform: none;
+      letter-spacing: 0;
+      font-weight: 500;
+    }
+    .log-entry {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.83rem;
+    }
+    .log-entry:last-child { border-bottom: none; }
+    .log-entry .time { color: var(--muted); }
+    .log-entry .beat { color: var(--green); font-weight: 600; font-size: 0.75rem; }
+    .log-empty {
+      color: var(--muted);
+      font-size: 0.85rem;
+      text-align: center;
+      padding: 12px 0;
+    }
+
+    /* Reset */
+    .reset-row {
+      text-align: center;
+    }
+    .btn-reset {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 10px;
+      padding: 8px 20px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-reset:hover { border-color: var(--red); color: var(--red); }
+
+    .motivational {
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--muted);
+      padding: 4px 0;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Clear</h1>
+    <p>Your companion for breaking free from alcohol</p>
+  </header>
+
+  <div class="container">
+
+    <!-- Sobriety Counter -->
+    <div class="counter-card">
+      <div class="label">Sober for</div>
+      <div class="days" id="dayCount">0</div>
+      <div class="days-label" id="daysLabel">days</div>
+      <div class="detail" id="detailTime">Set your start date below</div>
+      <div class="since-input-row">
+        <input type="datetime-local" id="startDateInput" />
+        <button class="btn-set" onclick="setStartDate()">Set</button>
+      </div>
+    </div>
+
+    <!-- Motivational quote -->
+    <div class="motivational" id="motivationalQuote"></div>
+
+    <!-- Urge Button -->
+    <div class="urge-card">
+      <p>Feeling the urge right now?</p>
+      <button class="btn-urge" onclick="feelUrge()">I feel the urge to drink</button>
+    </div>
+
+    <!-- Suggestions -->
+    <div class="suggestions-card" id="suggestionsCard">
+      <h3>Try this instead — right now</h3>
+      <div id="suggestionsList"></div>
+      <button class="btn-shuffle" onclick="showSuggestions()">Shuffle suggestions</button>
+    </div>
+
+    <!-- Urge Log -->
+    <div class="log-card">
+      <h3>
+        Urge log
+        <button class="clear-btn" onclick="clearLog()">Clear</button>
+      </h3>
+      <div id="urgeLog"></div>
+    </div>
+
+    <!-- Money Saved Calculator -->
+    <div class="log-card" id="moneyCard">
+      <h3 style="text-transform:none;letter-spacing:0;font-size:0.95rem;color:var(--text);">
+        💰 Money Saved
+      </h3>
+      <p style="font-size:0.82rem;color:var(--muted);margin-bottom:12px;">How much did you spend on alcohol per week?</p>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
+        <span style="color:var(--muted);font-size:0.9rem;">$</span>
+        <input type="number" id="weeklySpend" placeholder="e.g. 50" min="0"
+          style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:8px 12px;font-size:0.9rem;"
+          oninput="updateMoney()" />
+        <span style="color:var(--muted);font-size:0.85rem;">/ week</span>
+      </div>
+      <div id="moneySaved" style="display:none;">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;">
+          <div style="background:rgba(74,222,128,0.08);border-radius:10px;padding:10px;">
+            <div style="font-size:1.3rem;font-weight:800;color:var(--green);" id="savedWeek">$0</div>
+            <div style="font-size:0.72rem;color:var(--muted);">this week</div>
+          </div>
+          <div style="background:rgba(74,222,128,0.08);border-radius:10px;padding:10px;">
+            <div style="font-size:1.3rem;font-weight:800;color:var(--green);" id="savedMonth">$0</div>
+            <div style="font-size:0.72rem;color:var(--muted);">this month</div>
+          </div>
+          <div style="background:rgba(74,222,128,0.08);border-radius:10px;padding:10px;">
+            <div style="font-size:1.3rem;font-weight:800;color:var(--green);" id="savedYear">$0</div>
+            <div style="font-size:0.72rem;color:var(--muted);">per year</div>
+          </div>
+        </div>
+        <p style="font-size:0.78rem;color:var(--muted);margin-top:10px;text-align:center;" id="moneyTip"></p>
+      </div>
+    </div>
+
+    <!-- YouTube Resources -->
+    <div class="log-card">
+      <h3 style="text-transform:none;letter-spacing:0;font-size:0.95rem;color:var(--text);margin-bottom:14px;">
+        Watch on YouTube
+      </h3>
+
+      <div style="font-size:0.78rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:8px;">Health & Recovery</div>
+      <div id="healthVideos" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;"></div>
+
+      <div style="font-size:0.78rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:8px;">Financial Freedom</div>
+      <div id="financeVideos" style="display:flex;flex-direction:column;gap:8px;"></div>
+    </div>
+
+    <!-- Reset -->
+    <div class="reset-row">
+      <button class="btn-reset" onclick="resetCounter()">Reset sobriety counter (I relapsed)</button>
+    </div>
+
+  </div>
+
+  <script>
+    const SUGGESTIONS = [
+      { icon: "💧", title: "Drink a big glass of cold water", desc: "Hydration curbs cravings and gives your hands something to hold." },
+      { icon: "🚶", title: "Take a 10-minute walk", desc: "Physical movement shifts your brain chemistry and breaks the pattern." },
+      { icon: "📞", title: "Call or text a trusted friend", desc: "Connection is the antidote to addiction. Reach out right now." },
+      { icon: "🧊", title: "Hold an ice cube", desc: "The sharp cold sensation grounds you in the present moment." },
+      { icon: "🍵", title: "Make a hot tea or sparkling water", desc: "Give yourself a ritual to replace the drinking ritual." },
+      { icon: "🎧", title: "Put on your favourite playlist", desc: "Music shifts mood fast — choose something upbeat or calming." },
+      { icon: "📓", title: "Write down what you're feeling", desc: "Journaling the urge often makes it pass. Give it 5 minutes." },
+      { icon: "🧘", title: "Do 5 deep breaths", desc: "Inhale 4s, hold 4s, exhale 6s. Activates your calm nervous system." },
+      { icon: "🍇", title: "Eat something crunchy or sweet", desc: "A healthy snack can satisfy the oral fixation behind the urge." },
+      { icon: "🎮", title: "Play a quick mobile game", desc: "Distract your brain for 10 minutes — the craving will weaken." },
+      { icon: "🏋️", title: "Do 20 push-ups or squats", desc: "Physical exertion releases endorphins and burns through the urge." },
+      { icon: "🛁", title: "Take a cold or warm shower", desc: "A physical reset that changes your state immediately." },
+      { icon: "📺", title: "Watch a short motivational video", desc: "Reconnect with your 'why' — search 'sobriety story' on YouTube." },
+      { icon: "🌿", title: "Step outside and breathe fresh air", desc: "A change of environment breaks the trigger-response loop." },
+    ];
+
+    const QUOTES = [
+      "Every day sober is a victory worth celebrating.",
+      "You are stronger than any craving.",
+      "The urge will pass. You don't have to act on it.",
+      "One moment at a time. You've got this.",
+      "Your future self is proud of the choice you make right now.",
+      "Sobriety is not a loss — it's a gain of everything.",
+      "You didn't come this far to only come this far.",
+    ];
+
+    function getStorage(key, fallback) {
+      const v = localStorage.getItem(key);
+      return v !== null ? JSON.parse(v) : fallback;
+    }
+    function setStorage(key, val) {
+      localStorage.setItem(key, JSON.stringify(val));
+    }
+
+    // --- Counter ---
+    let startDate = getStorage('clearStartDate', null);
+
+    function formatDuration(ms) {
+      const totalSec = Math.floor(ms / 1000);
+      const days = Math.floor(totalSec / 86400);
+      const hours = Math.floor((totalSec % 86400) / 3600);
+      const mins = Math.floor((totalSec % 3600) / 60);
+      return { days, hours, mins };
+    }
+
+    function updateCounter() {
+      const dayEl = document.getElementById('dayCount');
+      const labelEl = document.getElementById('daysLabel');
+      const detailEl = document.getElementById('detailTime');
+      if (!startDate) {
+        dayEl.textContent = '0';
+        labelEl.textContent = 'days';
+        detailEl.textContent = 'Set your start date below';
+        return;
+      }
+      const diff = Date.now() - new Date(startDate).getTime();
+      if (diff < 0) {
+        dayEl.textContent = '0';
+        labelEl.textContent = 'days';
+        detailEl.textContent = 'Start date is in the future';
+        return;
+      }
+      const { days, hours, mins } = formatDuration(diff);
+      dayEl.textContent = days;
+      labelEl.textContent = days === 1 ? 'day' : 'days';
+      detailEl.textContent = `${hours}h ${mins}m — since ${new Date(startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+    }
+
+    function setStartDate() {
+      const input = document.getElementById('startDateInput').value;
+      if (!input) return;
+      startDate = new Date(input).toISOString();
+      setStorage('clearStartDate', startDate);
+      updateCounter();
+    }
+
+    function resetCounter() {
+      if (!confirm('Mark a relapse and reset the counter to now?')) return;
+      startDate = new Date().toISOString();
+      setStorage('clearStartDate', startDate);
+      // Update datetime input to now
+      const now = new Date();
+      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+      document.getElementById('startDateInput').value = now.toISOString().slice(0, 16);
+      updateCounter();
+    }
+
+    // Pre-fill datetime input with current time
+    function initDateInput() {
+      const now = new Date();
+      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+      document.getElementById('startDateInput').value = now.toISOString().slice(0, 16);
+      if (startDate) updateCounter();
+    }
+
+    // --- Suggestions ---
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function showSuggestions() {
+      const card = document.getElementById('suggestionsCard');
+      const list = document.getElementById('suggestionsList');
+      card.classList.add('visible');
+      const picked = shuffle(SUGGESTIONS).slice(0, 3);
+      list.innerHTML = picked.map(s => `
+        <div class="suggestion-item">
+          <div class="icon">${s.icon}</div>
+          <div class="text">
+            <div class="title">${s.title}</div>
+            <div class="desc">${s.desc}</div>
+          </div>
+        </div>
+      `).join('');
+      card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // --- Urge Log ---
+    function loadLog() {
+      return getStorage('clearUrgeLog', []);
+    }
+
+    function renderLog() {
+      const log = loadLog();
+      const el = document.getElementById('urgeLog');
+      if (log.length === 0) {
+        el.innerHTML = '<div class="log-empty">No urges logged yet — stay strong!</div>';
+        return;
+      }
+      el.innerHTML = log.slice().reverse().slice(0, 10).map(e => `
+        <div class="log-entry">
+          <span>${new Date(e.time).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+          <span class="beat">Beat it</span>
+        </div>
+      `).join('');
+    }
+
+    function clearLog() {
+      if (!confirm('Clear the urge log?')) return;
+      setStorage('clearUrgeLog', []);
+      renderLog();
+    }
+
+    function feelUrge() {
+      const log = loadLog();
+      log.push({ time: new Date().toISOString() });
+      setStorage('clearUrgeLog', log);
+      renderLog();
+      showSuggestions();
+    }
+
+    // --- Motivational Quote ---
+    function showQuote() {
+      const q = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+      document.getElementById('motivationalQuote').textContent = `"${q}"`;
+    }
+
+    // --- Init ---
+    initDateInput();
+    updateCounter();
+    renderLog();
+    showQuote();
+    setInterval(updateCounter, 30000); // update every 30s
+
+    // --- Money Saved ---
+    function updateMoney() {
+      const weekly = parseFloat(document.getElementById('weeklySpend').value) || 0;
+      const savedDiv = document.getElementById('moneySaved');
+      if (weekly <= 0) { savedDiv.style.display = 'none'; return; }
+      savedDiv.style.display = 'block';
+      const daysAgo = startDate ? Math.max(0, (Date.now() - new Date(startDate).getTime()) / 86400000) : 0;
+      const perDay = weekly / 7;
+      const wk = (perDay * Math.min(daysAgo, 7)).toFixed(0);
+      const mo = (perDay * Math.min(daysAgo, 30)).toFixed(0);
+      const yr = (weekly * 52).toFixed(0);
+      document.getElementById('savedWeek').textContent = '$' + wk;
+      document.getElementById('savedMonth').textContent = '$' + mo;
+      document.getElementById('savedYear').textContent = '$' + yr;
+      const tips = [
+        `$${yr}/yr could become $${Math.round(yr * 1.07 * 10) / 10} in a decade with investing.`,
+        `That's ${Math.round(yr / 15)} Netflix subscriptions per year.`,
+        `Invest $${yr}/yr at 7% avg return — in 10 yrs: $${Math.round(yr * 13.8).toLocaleString()}.`,
+        `A flight + hotel for a vacation costs about $${yr} — you're saving that.`,
+      ];
+      document.getElementById('moneyTip').textContent = tips[Math.floor(daysAgo) % tips.length];
+      setStorage('clearWeeklySpend', weekly);
+    }
+
+    // Load saved spend
+    const savedSpend = getStorage('clearWeeklySpend', null);
+    if (savedSpend) {
+      document.getElementById('weeklySpend').value = savedSpend;
+      updateMoney();
+    }
+
+    // --- YouTube Resources ---
+    const HEALTH_LINKS = [
+      { title: "This Naked Mind — Alcohol & the Brain", q: "This Naked Mind alcohol brain science" },
+      { title: "What Happens When You Stop Drinking", q: "what happens body stop drinking alcohol" },
+      { title: "Sobriety Stories — Real People, Real Recovery", q: "sobriety story recovery alcohol quit" },
+      { title: "Andrew Huberman on Alcohol's Effects", q: "Huberman alcohol effects health" },
+    ];
+    const FINANCE_LINKS = [
+      { title: "The True Cost of Drinking — Financial Impact", q: "financial cost of alcohol drinking money" },
+      { title: "How to Invest Money You Save from Quitting", q: "investing money saved quitting alcohol index fund" },
+      { title: "Building Wealth by Cutting Bad Habits", q: "build wealth cut spending bad habits personal finance" },
+      { title: "Compound Interest — Your Savings Growing", q: "compound interest investing beginner explained" },
+    ];
+
+    function renderYouTubeLinks(links, containerId) {
+      const el = document.getElementById(containerId);
+      el.innerHTML = links.map(l => {
+        const url = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(l.q);
+        return `<a href="${url}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,0.04);border-radius:10px;text-decoration:none;color:var(--text);border:1px solid var(--border);transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+          <span style="font-size:1.2rem;">▶</span>
+          <span style="font-size:0.85rem;">${l.title}</span>
+        </a>`;
+      }).join('');
+    }
+
+    renderYouTubeLinks(HEALTH_LINKS, 'healthVideos');
+    renderYouTubeLinks(FINANCE_LINKS, 'financeVideos');
+
+    // Register service worker for PWA
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>

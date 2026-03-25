@@ -361,7 +361,10 @@
       <div id="healthVideos" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;"></div>
 
       <div style="font-size:0.78rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:8px;">Financial Freedom</div>
-      <div id="financeVideos" style="display:flex;flex-direction:column;gap:8px;"></div>
+      <div id="financeVideos" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;"></div>
+
+      <div style="font-size:0.78rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:8px;">🎵 Classic Music (1970s–1990s)</div>
+      <div id="musicVideos" style="display:flex;flex-direction:column;gap:8px;"></div>
     </div>
 
     <!-- Reset -->
@@ -598,8 +601,39 @@
       }).join('');
     }
 
+    const MUSIC_LINKS = [
+      { icon: "🎸", title: "Hotel California — Eagles (1977)", q: "Eagles Hotel California official" },
+      { icon: "🎤", title: "Bohemian Rhapsody — Queen (1975)", q: "Queen Bohemian Rhapsody official" },
+      { icon: "🎹", title: "Piano Man — Billy Joel (1973)", q: "Billy Joel Piano Man official" },
+      { icon: "🎵", title: "Don't Stop Believin' — Journey (1981)", q: "Journey Don't Stop Believin official" },
+      { icon: "🎸", title: "Sweet Home Alabama — Lynyrd Skynyrd (1974)", q: "Lynyrd Skynyrd Sweet Home Alabama official" },
+      { icon: "🎤", title: "Born to Run — Bruce Springsteen (1975)", q: "Bruce Springsteen Born to Run official" },
+      { icon: "🎵", title: "Africa — Toto (1982)", q: "Toto Africa official" },
+      { icon: "🎹", title: "Take On Me — a-ha (1985)", q: "a-ha Take On Me official" },
+      { icon: "🎸", title: "Eye of the Tiger — Survivor (1982)", q: "Survivor Eye of the Tiger official" },
+      { icon: "🎤", title: "I Will Always Love You — Whitney Houston (1992)", q: "Whitney Houston I Will Always Love You official" },
+      { icon: "🎵", title: "Every Breath You Take — The Police (1983)", q: "The Police Every Breath You Take official" },
+      { icon: "🎸", title: "Livin' on a Prayer — Bon Jovi (1986)", q: "Bon Jovi Livin on a Prayer official" },
+      { icon: "🎹", title: "Careless Whisper — George Michael (1984)", q: "George Michael Careless Whisper official" },
+      { icon: "🎤", title: "Purple Rain — Prince (1984)", q: "Prince Purple Rain official" },
+      { icon: "🎵", title: "Thriller — Michael Jackson (1982)", q: "Michael Jackson Thriller official" },
+      { icon: "🎸", title: "Back in Black — AC/DC (1980)", q: "AC/DC Back in Black official" },
+    ];
+
+    function renderMusicLinks(links, containerId) {
+      const el = document.getElementById(containerId);
+      el.innerHTML = links.map(l => {
+        const url = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(l.q);
+        return `<a href="${url}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,0.04);border-radius:10px;text-decoration:none;color:var(--text);border:1px solid var(--border);transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--accent2)'" onmouseout="this.style.borderColor='var(--border)'">
+          <span style="font-size:1.2rem;">${l.icon}</span>
+          <span style="font-size:0.85rem;">${l.title}</span>
+        </a>`;
+      }).join('');
+    }
+
     renderYouTubeLinks(HEALTH_LINKS, 'healthVideos');
     renderYouTubeLinks(FINANCE_LINKS, 'financeVideos');
+    renderMusicLinks(MUSIC_LINKS, 'musicVideos');
 
     // Register service worker for PWA
     if ('serviceWorker' in navigator) {

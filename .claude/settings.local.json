@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(code --list-extensions)",
+      "Bash(code:*)",
+      "Bash(echo \"Exit: $?\")",
+      "Bash(powershell -Command \"Get-Process OneDrive -ErrorAction SilentlyContinue | Select-Object Name,Id; Get-ItemProperty ''HKCU:\\\\Software\\\\Microsoft\\\\OneDrive'' -ErrorAction SilentlyContinue | Select-Object UserFolder; ls $env:LOCALAPPDATA\\\\Microsoft\\\\OneDrive\\\\OneDriveSetup.exe -ErrorAction SilentlyContinue; ls $env:SystemRoot\\\\System32\\\\OneDriveSetup.exe -ErrorAction SilentlyContinue; ls $env:SystemRoot\\\\SysWOW64\\\\OneDriveSetup.exe -ErrorAction SilentlyContinue\")"
+    ]
+  }
+}
